@@ -9,7 +9,7 @@ from telebot.types import KeyboardButton
 
 load_dotenv(dotenv_path='tokens.env')
 
-API_TOKEN = os.getenv('API_TOKEN')
+API_TOKEN = os.getenv('TEST')
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -19,12 +19,12 @@ selected_city = ""
 user_steps = {}
 
 city_translation = {
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ РњС–РЅСЃРєСѓ": ("Minsk", "РњС–РЅСЃРєСѓ"),
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ Р‘СЂСЌСЃС†Рµ": ("Brest", "Р‘СЂСЌСЃС†Рµ"),
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ Р“РѕРјРµР»Рµ": ("Gomel", "Р“РѕРјРµР»Рµ"),
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ Р“СЂРѕРґРЅРѕ": ("Grodno", "Р“СЂРѕРґРЅРѕ"),
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ Р’С–С†РµР±СЃРєРµ": ("Vitebsk", "Р’С–С†РµР±СЃРєРµ"),
-    "РќР°РґРІРѕСЂвЂ™Рµ Сћ РњР°РіС–Р»С‘РІРµ": ("Mogilev", "РњР°РіС–Р»С‘РІРµ")
+    "Надвор’е ў Мінску": ("Minsk", "Мінску"),
+    "Надвор’е ў Брэсце": ("Brest", "Брэсце"),
+    "Надвор’е ў Гомеле": ("Gomel", "Гомеле"),
+    "Надвор’е ў Гродно": ("Grodno", "Гродно"),
+    "Надвор’е ў Віцебске": ("Vitebsk", "Віцебске"),
+    "Надвор’е ў Магілёве": ("Mogilev", "Магілёве")
 }
 
 def get_weather(city):
@@ -35,7 +35,7 @@ def get_weather(city):
         data = response.json()
 
         if 'error' in data:
-            return "РџР°РјС‹Р»РєР° РїСЂС‹ Р°С‚СЂС‹РјР°РЅРЅС– РґР°РґР·РµРЅС‹С… Р°Р± РЅР°РґРІРѕСЂ'С–."
+            return "Памылка пры атрыманні дадзеных аб надвор'і."
 
         temp = data['current']['temp_c']
         weather = data['current']['condition']['text']
@@ -51,59 +51,59 @@ def get_weather(city):
         formatted_date = format_date(now, locale='be')
         formatted_time = format_time(now, locale='be')
 
-        return f"рџ“†CС‘РЅРЅСЏ: {formatted_date}\nвЏ°Р§Р°СЃ: {formatted_time}\n\nрџЊҐРќР°РґРІРѕСЂ'Рµ Сћ {city}рџЊҐ\nрџЊЎРўСЌРјРїРµСЂР°С‚СѓСЂР°: {temp}В°C\nвњЁРЎС‚Р°РЅ: {translated_text}\nрџЊ¬Р’РµС†РµСЂ: {wind} РєРј/Рі"
+        return f"📆Cёння: {formatted_date}\n⏰Час: {formatted_time}\n\n🌥Надвор'е ў {city}🌥\n🌡Тэмпература: {temp}°C\n✨Стан: {translated_text}\n🌬Вецер: {wind} км/г"
     except requests.exceptions.RequestException as e:
-        return f"РќРµРјР°РіС‡С‹РјР° Р°С‚СЂС‹РјР°С†СЊ РґР°РґР·РµРЅС‹СЏ: {e}"
+        return f"Немагчыма атрымаць дадзеныя: {e}"
     except Exception as e:
-        return f"РќРµС‡Р°РєР°РЅР°СЏ РїР°РјС‹Р»РєР°: {e}"
+        return f"Нечаканая памылка: {e}"
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = telebot.types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    country_button = KeyboardButton('рџЊЌР’С‹Р±РµСЂС‹С†Рµ РєСЂР°С–РЅСѓрџЊЌ')
-    settings = KeyboardButton('вљ™пёЏРќР°Р»Р°РґРєС–вљ™пёЏ')
+    country_button = KeyboardButton('🌍Выберыце краіну🌍')
+    settings = KeyboardButton('⚙️Наладкі⚙️')
     markup.add(country_button, settings)
-    bot.send_message(message.chat.id, "Р’С–С‚Р°СЋ! РќР°С†С–СЃРЅС–С†Рµ РєРЅРѕРїРєСѓ, РєР°Р± РІС‹Р±СЂР°С†СЊ РєСЂР°С–РЅСѓ.",
+    bot.send_message(message.chat.id, "Вітаю! Націсніце кнопку, каб выбраць краіну.",
                      reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text == 'вљ™пёЏРќР°Р»Р°РґРєС–вљ™пёЏ')
+@bot.message_handler(func=lambda message: message.text == '⚙️Наладкі⚙️')
 def settings(message):
-    bot.reply_to(message, 'РЈ Р±СѓРґСѓС‡С‹РЅРЅС–')
+    bot.reply_to(message, 'У будучынні')
 
 
-@bot.message_handler(func=lambda message: message.text == 'рџЊЌР’С‹Р±РµСЂС‹С†Рµ РєСЂР°С–РЅСѓрџЊЌ')
+@bot.message_handler(func=lambda message: message.text == '🌍Выберыце краіну🌍')
 def choose_country(message):
     markup = telebot.types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    belarus_button = KeyboardButton('Р‘РµР»Р°СЂСѓСЃСЊрџ‡§рџ‡ѕ')
-    back_button = KeyboardButton('Р’СЏСЂРЅСѓС†С†Р°в¬…пёЏ')
+    belarus_button = KeyboardButton('Беларусь🇧🇾')
+    back_button = KeyboardButton('Вярнуцца⬅️')
     markup.add(belarus_button, back_button)
-    bot.send_message(message.chat.id, "Р’С‹Р»СѓС‡С‹С†Рµ РєСЂР°С–РЅСѓ:", reply_markup=markup)
+    bot.send_message(message.chat.id, "Вылучыце краіну:", reply_markup=markup)
 
 
 
-@bot.message_handler(func=lambda message: message.text == 'Р‘РµР»Р°СЂСѓСЃСЊрџ‡§рџ‡ѕ')
+@bot.message_handler(func=lambda message: message.text == 'Беларусь🇧🇾')
 def send_weather(message):
     markup = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    minsk = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ РњС–РЅСЃРєСѓ')
-    brest = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ Р‘СЂСЌСЃС†Рµ')
-    gomel = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ Р“РѕРјРµР»Рµ')
-    grodno = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ Р“СЂРѕРґРЅРѕ')
-    vitebsk = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ Р’С–С†РµР±СЃРєРµ')
-    mogilev = KeyboardButton('РќР°РґРІРѕСЂвЂ™Рµ Сћ РњР°РіС–Р»С‘РІРµ')
-    back_button = KeyboardButton('Р’СЏСЂРЅСѓС†С†Р°в¬…пёЏ')
+    minsk = KeyboardButton('Надвор’е ў Мінску')
+    brest = KeyboardButton('Надвор’е ў Брэсце')
+    gomel = KeyboardButton('Надвор’е ў Гомеле')
+    grodno = KeyboardButton('Надвор’е ў Гродно')
+    vitebsk = KeyboardButton('Надвор’е ў Віцебске')
+    mogilev = KeyboardButton('Надвор’е ў Магілёве')
+    back_button = KeyboardButton('Вярнуцца⬅️')
     markup.add(minsk, brest, gomel, grodno, vitebsk, mogilev, back_button)
-    bot.send_message(message.chat.id, "Р’С–С‚Р°СЋ! РќР°С†С–СЃРЅС–С†Рµ РєРЅРѕРїРєСѓ, РєР°Р± Р°С‚СЂС‹РјР°С†СЊ РЅР°РґРІРѕСЂ'Рµ Сћ РњС–РЅСЃРєСѓ.",
+    bot.send_message(message.chat.id, "Вітаю! Націсніце кнопку, каб атрымаць надвор'е ў Мінску.",
                      reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text == 'Р’СЏСЂРЅСѓС†С†Р°в¬…пёЏ')
+@bot.message_handler(func=lambda message: message.text == 'Вярнуцца⬅️')
 def go_back(message):
     step = user_steps.get(message.chat.id, 'start')
     if step == 'choose_city':
-        choose_country(message)  # Р’РѕР·РІСЂР°С‰Р°РµРј Рє РІС‹Р±РѕСЂСѓ СЃС‚СЂР°РЅС‹
+        choose_country(message)  
     elif step == 'choose_country':
-        send_welcome(message)  # Р’РѕР·РІСЂР°С‰Р°РµРј РІ РЅР°С‡Р°Р»СЊРЅРѕРµ РјРµРЅСЋ
+        send_welcome(message) 
     else:
-        send_welcome(message)  # РќР° СЃР»СѓС‡Р°Р№ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРіРѕ С€Р°РіР°
+        send_welcome(message) 
 
 @bot.message_handler(func=lambda message: message.text in city_translation)
 def send_weather(message):
@@ -112,6 +112,6 @@ def send_weather(message):
     selected_city, city_belarusian = city_translation[message.text]
     weather_info = get_weather(selected_city)
 
-    bot.reply_to(message, weather_info.replace(f"рџЊҐРќР°РґРІРѕСЂ'Рµ Сћ {selected_city}рџЊҐ", f"рџЊҐРќР°РґРІРѕСЂ'Рµ Сћ {city_belarusian}рџЊҐ"))
+    bot.reply_to(message, weather_info.replace(f"🌥Надвор'е ў {selected_city}🌥", f"🌥Надвор'е ў {city_belarusian}🌥"))
 
 bot.polling()
